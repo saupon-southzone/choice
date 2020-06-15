@@ -1,0 +1,259 @@
+	goto *EOF_VIEW_MAIN
+	
+*V_MAIN_MAKE
+	sx = x * Gr*2 + Gpx
+	sy = y * Gr*2 + Gpy
+	color 0,0,0
+	circle sx-Gr, sy-Gr , sx+Gr , sy+Gr , 1
+	
+	return
+
+*V_MAIN_CIR_DRAW
+	repeat GcirS
+		x = cirDones.cnt.0
+		y = cirDones.cnt.1
+		gosub *V_MAIN_MAKE
+	loop
+	if (GckX1 != EMPTY){
+		x = GckX1 : y = GckY1
+		sx = x * Gr*2 + Gpx
+		sy = y * Gr*2 + Gpy
+		color 255,0,0
+		circle sx-Gr, sy-Gr , sx+Gr , sy+Gr , 1
+	}
+
+	if (GckX2 != EMPTY){
+		x = GckX2 : y = GckY2
+		sx = x * Gr*2 + Gpx
+		sy = y * Gr*2 + Gpy
+		color 255,0,0
+		circle sx-Gr, sy-Gr , sx+Gr , sy+Gr , 1
+	}
+	return
+
+*V_MAIN_LOOP
+	redraw 0
+	color 255,255,255
+	if (GisDish == TRUE) : gosub *V_WR
+	boxf 0,0,ginfo_sx, Gpy - Gr - 1
+	color 0,0,0
+	fs = GFSL
+	font GFN,fs
+	x = 10 : y = 2
+	pos x , y : mes "Combo"
+	x += fs/2*8
+	pos x , y : mes GCombo
+	
+	if (GType == TEN){
+		x += fs/2*8
+		pos x , y : mes "Time"
+		x += fs/2*6
+		pos x , y : mes Gtime
+	}
+	
+	if (GisDish == TRUE):gosub *V_MAIN_CIR_DRAW
+	
+	stick key
+	if (key & 256){//left click
+		mx = mousex : my = mousey
+		repeat length(cirDones)
+			if (cirDones.cnt.0 == EMPTY) : break
+			cx = cirDones.cnt.0 * Gr*2 + Gpx 
+			cy = cirDones.cnt.1 * Gr*2 + Gpy
+			if (cx-Gr <= mx && cx+Gr >= mx){
+				if (cy-Gr <= my && cy+Gr >= my){
+					//‰~‚Ì“à‚ðƒNƒŠƒbƒN
+					x = cirDones.cnt.0 : y = cirDones.cnt.1
+					if (GckX1 == x && GckY1 == y){
+						//dialog "over write 1"
+						GckX1 = EMPTY : GckY1 = EMPTY
+						sx = x * Gr*2 + Gpx
+						sy = y * Gr*2 + Gpy
+						color 0,0,0
+						circle sx-Gr, sy-Gr , sx+Gr , sy+Gr , 1
+						break
+					}
+					if (GckX2 == x && GckY2 == y){
+						//dialog "over write 2"
+						GckX2 = EMPTY : GckY2 = EMPTY
+						sx = x * Gr*2 + Gpx
+						sy = y * Gr*2 + Gpy
+						color 0,0,0
+						circle sx-Gr, sy-Gr , sx+Gr , sy+Gr , 1
+						break
+					}
+	
+					if (GckX1 == EMPTY){
+						GckX1 = x : GckY1 = y
+						sx = x * Gr*2 + Gpx
+						sy = y * Gr*2 + Gpy
+						color 255,0,0
+						circle sx-Gr, sy-Gr , sx+Gr , sy+Gr , 1
+						//dialog "draw"
+						break
+					}
+	
+					if (GckX2 == EMPTY){
+						GckX2 = x : GckY2 = y
+						sx = x * Gr*2 + Gpx
+						sy = y * Gr*2 + Gpy
+						color 255,0,0
+						circle sx-Gr, sy-Gr , sx+Gr , sy+Gr , 1
+						//dialog "draw2"
+						break
+					}
+					
+				}
+			}
+		loop//end foreach
+		if (GckX2 != EMPTY){
+			goto *V_MAIN_CHECK_ANS
+		}
+	}// end if left click
+	wait 1
+	
+	if (GType == TEN): Gtime+= 1
+	redraw 1
+	goto *V_MAIN_LOOP
+	
+*V_MAIN_CHECK_ANS
+	if (GckX1 == EMPTY  || GckX2 == EMPTY){
+		goto *V_MAIN_LOOP
+	}
+	isCorrect = FALSE
+	if (GckX1 == Gx1 && GckY1 == Gy1 && GckX2 == Gx2 && GckY2 == Gy2):isCorrect = TRUE
+	if (GckX1 == Gx2 && GckY1 == Gy2 && GckX2 == Gx1 && GckY2 == Gy1):isCorrect = TRUE
+
+	cx = ginfo_sx/2 - 100
+	cy = ginfo_sy/2 - 100
+	pos cx,cy
+	if (isCorrect == TRUE){
+		GCombo += 1
+		if (GisDish == TRUE){
+			zm = (1.0*ginfo_sx/2/200)
+			x = int( (ginfo_sx - (zm * 200))/2)
+			y = int( (ginfo_sy - (zm * 200))/2)
+			pos x , y 
+			celput 1,0,zm,zm
+		}else{
+			gmode 2,200,200
+			gcopy GBufMaru,0,0
+			//gzoom 200,200,GBufMaru,0,0,540,540
+		}
+	}else{
+		if (GisDish == TRUE){
+			zm = (1.0 * ginfo_sx/2/200)
+			x = int( (ginfo_sx - (zm * 200))/2)
+			y = int( (ginfo_sy - (zm * 200))/2)
+			pos x , y 
+			celput 2,0,zm,zm
+		}else{
+			gmode 2,200,200
+			gcopy GBufBatsu,0,0
+			//gzoom 200,200,GBufBatsu,0,0,540,540
+		}
+		sx = Gx1 * Gr*2 + Gpx
+		sy = Gy1 * Gr*2 + Gpy
+		color 0,0,255
+		circle sx-Gr, sy-Gr , sx+Gr , sy+Gr , 1
+	
+		sx = Gx2 * Gr*2 + Gpx
+		sy = Gy2 * Gr*2 + Gpy
+		color 0,0,255
+		circle sx-Gr, sy-Gr , sx+Gr , sy+Gr , 1
+	}
+	redraw 1
+	wait 200
+	if (isCorrect == FALSE){
+		if (Gtype == ENDLESS) : gosub *MAIN_SET_RANK_E
+		if (Gtype == TEN) : gosub *MAIN_SET_RANK_T
+		gosub *SCORE_SAVE
+		wait 100
+		goto *V_MAIN_GAMESET
+	}
+	if (isCorrect == TRUE && Gtype == TEN && GCombo == 10){
+		if (Gtype == TEN) : gosub *MAIN_SET_RANK_T
+		gosub *SCORE_SAVE
+		wait 100
+		goto *V_MAIN_GAMESET
+	}
+	gosub *V_WR
+	gosub *MAIN_RESET
+	goto  *MAIN
+
+*V_MAIN_GAMESET
+	cls
+	dim mesX,20
+	fs = GFS3L : font GFN,fs
+	pos 0,0 : mes "Result"
+	mesX.0 = ginfo_mesx
+	
+	redraw 0
+	gosub *V_WR
+	color 0,0,0
+	fs = GFS3L : font GFN,fs
+	wid = mesX.0
+	gosub *getCX
+	x = cx : y = GpdT
+	pos x,y : mes "Result"
+	x = 10 : y += int(1.5*fs)
+	
+	fs = GFS2L: font GFN,fs
+	if (Gtype == ENDLESS): gosub *V_MAIN_RESULT_E
+	if (Gtype == TEN): gosub *V_MAIN_RESULT_T
+	
+	dim scores,10
+	if (Gtype == ENDLESS){
+		repeat length(GScoresE)
+			scores.cnt = GScoresE.cnt
+		loop
+	}else{
+		repeat length(GScoresT)
+			scores.cnt = GScoresT.cnt
+		loop
+	}
+	
+	y+= int(1.5*fs)
+	fs = GFSM : font GFN,fs
+	repeat length(scores)
+		rank = cnt + 1
+		x = 10 : y += GFSM + GFSM/3
+		suffix = "th"
+		if (cnt == 0):suffix = "st"
+		if (cnt == 1):suffix = "nd"
+		if (cnt == 2):suffix = "rd"
+	
+		color 0,0,0
+		if (Grank == rank):color 255,0,0
+		
+		pos x,y : mes ""+rank+suffix
+		x+= fs/2*6
+		if (scores.cnt != EMPTY):pos x,y : mes scores.cnt
+		//y+= int(1.5*fs)
+	loop
+	
+	wid = GBtnW
+	objsize wid,GBtnH
+	gosub *getCX
+	y = ginfo_sy - GBtnH - 20 - Gbtm
+	pos cx , y : button "Back",*VIEW_TITLE
+	redraw 1
+	stop
+
+*V_MAIN_RESULT_E
+	pos x,y : mes "Combo"
+	x+= fs/2 * 8
+	pos x,y : mes GCombo
+	return
+	
+*V_MAIN_RESULT_T
+	if (Grank == EMPTY){
+		pos x,y	: mes "Miss Choice at "+GCombo
+	}else{
+		pos x,y	: mes "Time"
+		x+= fs/2 * 7
+		pos x,y :mes GTime	
+	}
+	return
+	
+*EOF_VIEW_MAIN

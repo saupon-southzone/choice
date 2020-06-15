@@ -1,0 +1,134 @@
+	goto *EOF_MAIN
+
+*MAIN
+	dim cirDones,10,2
+	i = 0
+	repeat length(cirDones)
+		j = 0
+		repeat length2(cirDones)
+			cirDones.i.j = EMPTY
+			j++
+		loop
+		i++
+	loop
+
+	curKey = 0
+	repeat GcirS
+		gosub *MAIN_MAKE
+		cirDones.curKey.0 = x
+		cirDones.curKey.1 = y
+		curKey++
+	loop
+	
+	gosub *MAIN_SET_DIST
+	if (same == TRUE) : wait 1 : gosub *V_WR : goto *MAIN	//“¯‚¶‹——£‚ª‚ ‚Á‚½‚Ì‚ÅÄ’Š‘I
+	goto *MAIN_COMP
+	
+*MAIN_COMP
+	goto *V_MAIN_LOOP
+
+*MAIN_MAKE
+	repeat
+		gosub *MAIN_LOTO // returned x y
+		if (flgLoto == TRUE):break
+		if (cnt \ 10 == 0):wait 1 
+	loop
+	gosub *V_MAIN_MAKE
+	return
+	
+*MAIN_GAME_RESET
+	GCombo = 0
+	Gtime= 0
+	return
+	
+*MAIN_RESET
+	dim cirDones,10,2
+	GckX1 = EMPTY :  GckX2 = EMPTY : GckY1 = EMPTY : GckY2 = EMPTY
+	return
+
+*MAIN_LOTO
+	x = rnd(GxK)
+	y = rnd(GyK)
+	flgLoto = TRUE
+	repeat length(cirDones)
+		if (cirDones.cnt.0 == x && cirDones.cnt.1 == y ){
+			flgLoto = FALSE
+		}
+	loop
+	
+	return
+	
+*MAIN_SET_DIST
+	Gx1 = EMPTY : Gx2 = EMPTY : Gy1 = EMPTY : Gy2 = EMPTY
+	dist = 10000
+	same = FALSE
+	i = 0	
+	repeat GcirS
+		if (cirDones.i.0 == EMPTY) : break
+		x = cirDones.i.0
+		y = cirDones.i.1
+		j = i+1
+		repeat
+			if (j >= length(cirDones)) : break
+			if (cirDones.j.0 == EMPTY) : break
+			
+			dx = abs(cirDones.j.0 - x)
+			dy = abs(cirDones.j.1 - y)
+			d = dx*dx + dy*dy
+			if (d <= dist){
+				if (d == dist){
+					same = TRUE
+				}else{
+					same = FALSE
+				}
+				dist = d
+				Gx1 = x : Gy1 = y : Gx2 = cirDones.j.0  : Gy2 = cirDones.j.1
+			}
+			j++			
+		loop
+		i++
+	loop
+	return 
+	
+*MAIN_SET_RANK_E
+	Grank = EMPTY
+	repeat length(GScoresE)
+		if (GCombo >= GScoresE.cnt || GScoresE.cnt == EMPTY){
+			Grank = cnt + 1
+			dKey = cnt
+			i = length(GScoresE) - 2
+			j = length(GScoresE) - 1
+			repeat
+				if (i < dKey):break
+				GScoresE.j = GScoresE.i
+				j--
+				i--
+			loop
+			GScoresE.dKey = GCombo
+			break
+		}
+	loop
+	return
+	
+*MAIN_SET_RANK_T
+	Grank = EMPTY
+	if (GCombo < 10) : return
+	repeat length(GScoresT)
+		if (GTime < GScoresT.cnt || GScoresT.cnt == EMPTY){
+			Grank = cnt + 1
+			dKey = cnt
+			i = length(GScoresT) - 2
+			j = length(GScoresT) - 1
+			repeat
+				if (i < dKey):break
+				GScoresT.j = GScoresT.i
+				j--
+				i--
+			loop
+			GScoresT.dKey = GTime
+			break
+		}
+	loop
+	return
+	
+*EOF_MAIN

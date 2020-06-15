@@ -1,0 +1,3 @@
+	#include "hsp3dish.as"
+	GisDish = 1
+	#include "./_main.hsp"

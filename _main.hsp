@@ -1,0 +1,91 @@
+	title "Choice Nearest Two"
+	randomize
+/*CONST {  */
+	#const TRUE 1
+	#const FALSE 0
+	#const EMPTY -1
+	
+	#const ENDLESS 1
+	#const TEN 2
+/*CONST }*/
+
+/*GLOBAL {  */
+	if (GisDish != TRUE):GisDish = FALSE
+	GBufMaru = 1
+	GBufBatsu = 2
+	GsirMax = 9
+	dim GScoresE,10	//連続モードのランキング
+	dim GScoresT,10	//10回モードのランキング
+	repeat length(GScoresE)
+		GScoresE.cnt = EMPTY
+		GScoresT.cnt = EMPTY
+	loop
+	
+	GCombo = 0
+	Gtime= 0
+	
+	if (GisDish == TRUE){
+		GFS4L = ginfo_sx/10
+		GFS3L = ginfo_sx/12
+		GFS2L = ginfo_sx/14
+		GFSL = ginfo_sx/16
+		GFSML = ginfo_sx/20
+		GFSM = ginfo_sx/25
+		GFSS = ginfo_sx/30
+	
+		GpdT = ginfo_sy/20
+		Gbtm = ginfo_sy/10 + ginfo_sy/50
+		getreq v_platform,SYSREQ_PLATFORM
+		if ( v_platform = PLATFORM_ANDROID ) {
+			devcontrol "AdMob"		; AdMobを有効にする
+		}
+	}else{
+		GFS4L = 40
+		GFS3L = 36
+		GFS2L = 28
+		GFSL = 24// global font size large
+		GFSML = 20// global font size middle
+		GFSM = 16// global font size middle
+		GFSS = 10// global font size small	
+	
+		GpdT = 10
+		Gbtm = 0
+	}
+	GFN = "メイリオ"// global font name
+	
+	if (GisDish == TRUE){
+		GBtnW = ginfo_sx / 3
+		GBtnH = ginfo_sy /20
+	}else{
+		GBtnW = 150	//global button width
+		GBtnH = 40	//global button height
+	}
+	
+	Gfw = ginfo_sx : Gfh = ginfo_sy // global field width : field height
+	if (GisDish == TRUE){
+		Gr = ginfo_sx/30	//global r 
+	}else{
+		Gr = 8	//global r 
+	}
+	Gpx = 20 + Gr  : Gpy = int(1.5*GFSL)+Gr  // global padding x : padding y 
+	
+	GxK = (Gfw-Gpx*2-Gr)/(Gr*2) +1
+	GyK = (Gfh-Gpy-Gr-Gbtm)/(Gr*2) +1
+	dim cirDones,10,2
+	GckX1 = EMPTY :  GckX2 = EMPTY : GckY1 = EMPTY : GckY2 = EMPTY
+	GcirS = 9
+		
+/*GLOBAL }*/
+
+/*include{*/
+	#include "./m_main.hsp"	
+	#include "./m_score.hsp"	
+	#include "./v_title.hsp"
+	#include "./v_main.hsp"
+	#include "./v_others.hsp"	
+	#include "./v_util.hsp"	
+/*include }*/
+	gosub *SCORE_LOAD
+	gosub *V_SCREEN_INIT
+	
+	goto *VIEW_TITLE

@@ -1,0 +1,27 @@
+	goto *EOF_V_OTHERS
+	
+*V_SCREEN_INIT
+	if (GisDish == TRUE){
+		celload "mark_maru_dish.png",1
+		celload "mark_batsu_dish.png",2
+		return 
+	}
+	buffer GBufMaru
+	picload "./img/mark_maru.png",0	
+	
+	buffer GBufBatsu
+	picload "./img/mark_batsu.png",0
+	
+	screen
+	return
+	
+*V_WHITE_RESET
+	color 255,255,255
+	boxf
+	return
+	
+*V_WR
+	gosub *V_WHITE_RESET
+	return
+	
+*EOF_V_OTHERS

@@ -1,0 +1,123 @@
+	goto *EOF_V_TITLE
+
+*VIEW_TITLE
+	cls
+	font GFN,GFS4L
+	mes "Choice Nearest Two"
+	wid = ginfo_mesx
+	redraw 0
+	gosub *V_WR
+	color 0,0,0
+	gosub *getCx
+	pos cx,GpdT : mes "Choice Nearest Two"
+	wid = GBtnW : height = GBtnH
+	objsize wid,height
+	y = ginfo_sy/3
+	gosub *getCenterX
+	x = cx
+	pos x,y :button "Endless"  ,*JUMP_ENDLESS
+	y += height*2
+	pos x,y :button "10times",*JUMP_TEN
+	y += height*3
+	pos x,y :button "High Scores"  ,*VIEW_SCORE_E
+	
+	font GFN,GFSS
+	y = ginfo_sy - GFSS * 2 - Gbtm
+	pos 10,y : mes "southzone"
+	redraw 1
+	stop
+	
+*JUMP_ENDLESS
+	cls
+	GType = ENDLESS
+	gosub *MAIN_GAME_RESET
+	gosub *MAIN_RESET
+	goto *MAIN
+	
+*JUMP_TEN
+	cls
+	GType = TEN
+	gosub *MAIN_GAME_RESET
+	gosub *MAIN_RESET
+	goto *MAIN
+
+*VIEW_SCORE_E
+	vType = ENDLESS
+	goto *VIEW_SCORE
+	
+*VIEW_SCORE_T
+	vType = TEN
+	goto *VIEW_SCORE
+
+*VIEW_SCORE
+	cls
+	dim mesX,20
+	fs = GFS3L : font GFN,fs
+	if (vtype == ENDLESS) : string = " Endless" :wid = fs/2 * 20
+	if (vtype == TEN) : string = " 10times" : wid = fs/2 * 20
+	pos 0, 0 : mes "High Scores"+string
+	mesX.0 = ginfo_mesx
+	
+	fs = GFSM : font GFN,GFSM
+	pos 0, 0 : mes "No Score"
+	mesX.1 = ginfo_mesx
+	
+	redraw 0
+	gosub *V_WR
+	color 0,0,0
+	fs = GFS3L : font GFN,fs
+	if (vtype == ENDLESS) : string = " Endless"
+	if (vtype == TEN) : string = " 10times" 
+	wid = mesX.0 : gosub *getCenterX
+	x = cx :y = GpdT
+	pos x,y : mes "High Scores"+string
+	//dialog ginfo_mesx
+	wid = GBtnW
+	objsize wid,GBtnH
+	x = 20 : y += fs*2
+	pos x,y
+	if (vtype == ENDLESS) : button "10times"  ,*VIEW_SCORE_T
+	if (vtype == TEN) : button "Endless"  ,*VIEW_SCORE_E
+
+	x = ginfo_sx - GBtnW - 20
+	pos x,y :button "Back"  ,*VIEW_TITLE
+	
+	rank = 1
+	dim scores,10
+	if (vType == ENDLESS){
+		repeat length(GScoresE)
+			scores.cnt = GScoresE.cnt
+		loop
+	}else{
+		repeat length(GScoresT)
+			scores.cnt = GScoresT.cnt
+		loop
+	}
+	
+	y += int(1.5*GFSM + GBtnH)
+	
+	fs = GFSM : font GFN,GFSM	
+	repeat length(scores)
+		x = 10 : y += GFSM + GFSM/3
+		if (scores.cnt == EMPTY){
+			break
+		}
+		rank = cnt + 1
+		suffix = "th"
+		if (cnt == 0):suffix = "st"
+		if (cnt == 1):suffix = "nd"
+		if (cnt == 2):suffix = "rd"
+		pos x,y : mes ""+rank+suffix
+		x+= fs/2*6
+		pos x,y :mes scores.cnt
+	loop
+	if (scores.0 == EMPTY){
+		wid = mesX.1
+		gosub *getCX
+		pos cx, y : mes "No Score"
+	}
+	redraw 1
+	
+	stop
+	
+*EOF_V_TITLE

@@ -1,0 +1,14 @@
+	goto *EOF_V_UTIL
+
+//passed wid 
+*getCenterX
+	winx = ginfo_sx
+	winc = winx/2
+	cx = abs(int(winc - (wid/2) ))
+	return
+
+*getCX // alias getCenterX
+	gosub *getCenterX
+	return
+
+*EOF_V_UTIL

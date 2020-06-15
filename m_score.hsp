@@ -1,0 +1,127 @@
+	goto *EOF_M_SCORE
+
+*SCORE_LOAD
+	string = ""
+	notesel string
+	path = "./data/score_e.data"
+	if (GisDish == TRUE): path = "score_e.data"
+	exist path
+	if (strsize < 0): return
+	noteload path
+	gosub *SCORE_Decrypt
+	noteString = after
+	notesel noteString
+	//notesave "unlock.txt"
+	i=0:ii=0:row = ""
+	endline = noteinfo(0)
+	repeat
+		if (i>=endline):break
+		noteget row,i
+		GScoresE.cnt = int(row)
+		i++
+	loop
+	
+	string = ""
+	notesel string
+	path = "./data/score_t.data"
+	if (GisDish == TRUE): path = "score_t.data"
+	exist path
+	if (strsize < 0): return
+	noteload path
+	gosub *SCORE_Decrypt
+	noteString = after
+	notesel noteString
+	//notesave "unlock.txt"
+	i=0:ii=0:row = ""
+	endline = noteinfo(0)
+	repeat
+		if (i>=endline):break
+		noteget row,i
+		GScoresT.cnt = int(row)
+		i++
+	loop
+	
+	return 
+	
+*SCORE_SAVE
+	output = ""
+	repeat length(GScoresE)
+		output +=""+GScoresE.cnt+"\n" 
+	loop 
+	string = output
+	gosub *SCORE_Encrypt
+	output = after
+	notesel output
+	path = "./data/score_e.data"
+	if (GisDish == TRUE): path = "score_e.data"
+	notesave path
+	
+	
+	output = ""
+	repeat length(GScoresT)
+		output +=""+GScoresT.cnt+"\n" 
+	loop 
+	string = output
+	gosub *SCORE_Encrypt
+	output = after
+	notesel output
+	path = "./data/score_t.data"
+	if (GisDish == TRUE): path = "score_t.data"
+	notesave path
+	return 
+
+*SCORE_Encrypt//簡素なシーザー暗号
+	start = 7
+	mod   = 10
+	//start = 0
+	//mod = 0
+	sdim after,10000
+	key = start
+	place = 0
+	repeat strlen(string)
+		char = peek(string,cnt)
+		char = char + key
+		if (char > 255){ 
+			poke after,place,255 : place++	
+			poke after,place,255 : place++					
+			char = char - 255
+		}
+		poke after,place,char
+		key++
+		place++
+		if (key >= mod):key = 0
+	loop
+	return
+
+//passed string
+*SCORE_Decrypt
+	start = 7
+	mod   = 10
+	//start = 0
+	//mod = 0
+
+	sdim after,10000
+	key = start
+	rp = 0
+	tmpLen = strlen(string)
+	repeat tmpLen
+		if (rp >= tmpLen):break
+		char = peek(string,rp)
+
+		if (char == 255 && rp < tmpLen){
+			if (255 == peek(string,rp+1)){
+				char = peek(string,rp+2)
+				char = char+255
+				rp+=2
+			}
+		}
+		if (char < 0) : char = char + 255
+		char = char - key
+		poke after,cnt,char
+		key++
+		rp++
+		if (key >= mod):key = 0
+	loop
+	return
+
+*EOF_M_SCORE
